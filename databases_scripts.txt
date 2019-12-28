@@ -1,0 +1,47 @@
+//Scripts to create the tables under the DB: splitsmart
+
+
+
+//Events TABLE***********************************************************************************
+CREATE TABLE events (
+id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+name LONGTEXT NOT NULL,
+description LONGTEXT,
+start_date DATE,
+finish_date DATE,
+status SET( '0', '1' ) NOT NULL,
+creation_date_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+//People TABLE***********************************************************************************
+CREATE TABLE people (
+id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+name LONGTEXT NOT NULL,
+description LONGTEXT,
+creation_date_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+//Expenses TABLE***********************************************************************************
+CREATE TABLE expenses (
+id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+amount DECIMAL(19,2) NOT NULL,
+name LONGTEXT NOT NULL,
+description LONGTEXT,
+category LONGTEXT,
+category_id int(11),
+date DATE,
+made_by LONGTEXT NOT NULL,
+made_by_id int(11) NOT NULL,
+event LONGTEXT NOT NULL,
+event_id int(11) NOT NULL,
+creation_date_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+
+//CATEGORIES TABLE***********************************************************************************
+CREATE TABLE categories (
+id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+name LONGTEXT NOT NULL,
+description LONGTEXT,
+creation_date_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
