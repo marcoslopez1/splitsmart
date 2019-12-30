@@ -37,7 +37,7 @@
         <div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
       </div>
       <!--logo start-->
-      <a href="index.html" class="logo"><b>Split<span>Smart</span></b></a>
+      <a href="index.php" class="logo"><b>Split<span>Smart</span></b></a>
       <!--logo end-->
 
       <!--<div class="top-menu">
