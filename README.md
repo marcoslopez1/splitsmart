@@ -4,12 +4,13 @@
 
 <p align="center">
   <a>
-    <img alt="" title="" src="https://marcoslopezsite.com/apps/todolistapp/app/images/favicon.png" width="100">
+    <img alt="" title="" src="https://marcoslopezsite.com/apps/splitmart/img/favicon.png" width="50">
   </a>
 </p>
 
 <p align="center">
-  Web application to split equally expenses among peers. Users can create new events, add new people to the events, and register the expenses based on categories. It uses PHP, MySQL and HTML.
+  Web application to split equally expenses among peers. Users can create new events, add new people to the events, and register the expenses based on categories.
+  This applications uses PHP, MySQL and HTML.
 </p>
 
 <p align="center">
