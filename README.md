@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://marcoslopezsite.com/apps/todolistapp/landing/">
+  <a href="https://marcoslopezsite.com/apps/splitsmart/">
     <img alt="" title="" src="https://marcoslopezsite.com/apps/splitsmart/img/trial.png" width="200">
   </a>
 </p>
