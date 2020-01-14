@@ -4,7 +4,7 @@
 
 <p align="center">
   <a>
-    <img alt="" title="" src="https://marcoslopezsite.com/apps/splitsmart/img/favicon.png" width="50">
+    <img alt="" title="" src="https://marcoslopezsite.com/apps/splitsmart/img/favicon.png" width="100">
   </a>
 </p>
 
@@ -41,7 +41,7 @@ Our app is available on a cloud option for all kind of users and it's also possi
 **Available for both iOS and Android. You just need a browser.**
 
 <p align="center">
-  <img src = "https://marcoslopezsite.com/apps/splitsmart/img/screens.png" width=350>
+  <img src = "https://marcoslopezsite.com/apps/splitsmart/img/screens.png" width=700>
 </p>
 
  
