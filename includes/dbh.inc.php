@@ -1,10 +1,10 @@
 <?php
 //File to connect to the database
 
-$servername = "";
-$dBUsername = "";
-$dBPassword = "";
-$dBName = "";
+$servername = "localhost";
+$dBUsername = "marcgxdi_phpmyadmin";
+$dBPassword = "phpmyadmin";
+$dBName = "marcgxdi_splitsmart";
 
 $conn = mysqli_connect($servername, $dBUsername, $dBPassword, $dBName);
 $db = new PDO ('mysql:dbname='.$dBName.';host='.$servername,$dBUsername,$dBPassword);
