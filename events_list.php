@@ -10,19 +10,31 @@ $itemsQuery = $db->prepare("
   WHERE status = :status
   ORDER BY creation_date_stamp ASC
 ");
-
 //Here we force the value of the username, facking a session start:
-
 $itemsQuery->execute([
 //  'user' => $_SESSION['userid']
   'status' => '1'
 ]);
-
 //Now we get the previous query on a array:
 $items = $itemsQuery->rowCount() ? $itemsQuery : [];
-//foreach($items as $item) {
-//  print_r($item);
-//}
+
+//List of closed events
+$itemsQuery1 = $db->prepare("
+  SELECT id, name, description, start_date, finish_date, creation_date_stamp
+  FROM events
+  WHERE status = :status
+  ORDER BY creation_date_stamp ASC
+");
+//Here we force the value of the username, facking a session start:
+$itemsQuery1->execute([
+//  'user' => $_SESSION['userid']
+  'status' => '0'
+]);
+//Now we get the previous query on a array:
+$items1 = $itemsQuery1->rowCount() ? $itemsQuery1 : [];
+
+
+
 
  ?>
 
@@ -167,7 +179,49 @@ $items = $itemsQuery->rowCount() ? $itemsQuery : [];
 
           </div>
         </div>
+        </div>
         <!-- /row -->
+
+        <h2 class="centered">List of closed events</h2>
+        <div class="row content-panel">
+
+          <div class="col-md-10 col-md-offset-1 mt mb">
+            <div class="accordion" id="accordion2">
+
+
+              <?php if(!empty($items1)): ?>
+                <?php foreach($items1 as $item): ?>
+                  <div class="accordion-group">
+                    <div class="accordion-heading">
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="<?php echo 'events_list.php#collapse'.$item['id'];?>">
+                        <em class="glyphicon glyphicon-chevron-right icon-fixed-width"></em>
+                        <?php
+                          echo $item['name']; ?>
+                          </a>
+                        </div>
+                        <div id="<?php echo 'collapse'.$item['id'];?>" class="accordion-body collapse">
+                          <div class="accordion-inner">
+                            <p>
+                              <?php
+                              echo '<strong>Description: </strong>'.$item['description'];
+                              echo '</br><strong>Creation date: </strong>'.$item['creation_date_stamp'];
+                              ?>
+                            </br></br>
+                            Click <a href="events_detail.php?eventid=<?php echo $item['id'];?>">here</a> to open the event.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+              <p>There aren't closed events.</p>
+            <?php endif; ?>
+
+          </div>
+        </div>
+        <!-- /row -->
+
+
       </section>
       <?php
       //Version variables
@@ -207,6 +261,35 @@ $items = $itemsQuery->rowCount() ? $itemsQuery : [];
   <!--script for this page-->
   <script src="lib/sparkline-chart.js"></script>
   <script src="lib/zabuto_calendar.js"></script>
+
+  <!--script for confirmation message-->
+  <?php
+    $redirected_action = $_GET['action'];
+    if(isset($redirected_action)){
+      if ($redirected_action ==  'itemdeleted'){
+        echo '
+        <script type="text/javascript">
+        $(document).ready(function() {
+          var unique_id = $.gritter.add({
+            // (string | mandatory) the heading of the notification
+            title: "The event and all the expenses related to it have been deleted!",
+            // (string | mandatory) the text inside the notification
+            text: "Check the list of existing events or create a new one.",
+            // (bool | optional) if you want it to fade out on its own or just sit there
+            sticky: false,
+            // (int | optional) the time you want it to be alive for before fading out
+            time: 4000,
+            // (string | optional) the class name you want to apply to that specific message
+            class_name: "my-sticky-class"
+          });
+
+          return false;
+        });
+      </script>
+        ';
+      }
+    }
+    ?>
 
   <script type="application/javascript">
     $(document).ready(function() {

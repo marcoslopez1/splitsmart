@@ -65,8 +65,54 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
 
 
 
+//Query to generate the graphic
+$itemsQuery5 = $db->prepare("
+  Select data2.total_amount,
+    CASE data2.category
+    WHEN data2.category = '' THEN data2.category
+    ELSE 'Undefined Category'
+    END category
+  FROM(
+    SELECT * FROM (
+      SELECT id, SUM(amount) as total_amount, name, description, category, date, made_by, event_id, creation_date_stamp
+      FROM expenses
+      WHERE event_id = :event_id
+      GROUP BY category) AS data ) as data2
+  ORDER BY `total_amount` DESC
+");
+$itemsQuery5->execute([
+  'event_id' => $event_id,
+]);
+$items5 = $itemsQuery5->rowCount() ? $itemsQuery5 : [];
+
+//Generation of the array that will print the graphic
+$dataPoints = [];
+foreach ($items5 as $item) {
+  $category_item = $item['category'];
+  $value_item = $item['total_amount'];
+  $dataPoints [] = array("label"=>$category_item, "y"=>$value_item);
+}
 
 
+//Checking if the event is open vs closed
+$itemsQuery6 = $db->prepare("
+  SELECT id, name, description, start_date, finish_date, status, creation_date_stamp
+  FROM events
+  WHERE id = :event_id
+  ORDER BY creation_date_stamp ASC
+");
+//Here we force the value of the username, facking a session start:
+$itemsQuery6->execute([
+//  'user' => $_SESSION['userid']
+  'event_id' => $event_id,
+]);
+//Now we get the previous query on a array:
+$items6 = $itemsQuery6->rowCount() ? $itemsQuery6 : [];
+if(!empty($items6)):
+  foreach($items6 as $item):
+    $event_status =  $item['status'];
+  endforeach;
+endif;
 
 
 
@@ -186,7 +232,60 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
         ?></h2>
 
 
-    <a href="<?php echo 'expenses_new.php?event='.$event_id; ?>"><input type="submit" value="create a new expense" class="submit"></a>
+        <?php if ($event_status == 1){
+          echo '
+            <a href="expenses_new.php?event='.$event_id.'"><button type="button" class="btn btn-theme"><i class="fa fa-dollar"></i> Add expense</button></a>
+            <a href="https://marcoslopezsite.com/apps/splitsmart/dev/people_new.php"><button type="button" class="btn btn-theme"><i class="fa fa-user"></i> Add person</button></a>
+            <a href="includes/status_event.inc.php?event_id='.$event_id.'&status=close"><button type="button" class="btn btn-warning"><i class="fa fa-cog"></i> Close event</button></a>
+            <button class="btn btn-theme04" data-toggle="modal" data-target="#myModal">
+                <i class="fa fa-trash"></i> Delete event
+                </button>
+              <!-- Modal -->
+              <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      <h4 class="modal-title" id="myModalLabel">Delete event</h4>
+                    </div>
+                    <div class="modal-body">
+                      You are about to delete this event with all the expenses related to it. Do you want to proceed?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      <a href="includes/delete_event.inc.php?eventid='.$event_id.'&status=delete"><button type="button" class="btn btn-theme04">Delete</button></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          ';
+        } else {
+          echo '
+          <a href="includes/status_event.inc.php?event_id='.$event_id.'&status=open"><button type="button" class="btn btn-theme"><i class="fa fa-cog"></i> Reopen event</button></a>
+          <button class="btn btn-theme04" data-toggle="modal" data-target="#myModal">
+              <i class="fa fa-trash"></i> Delete event
+              </button>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Delete event</h4>
+                  </div>
+                  <div class="modal-body">
+                    You are about to delete this event with all the expenses related to it. Do you want to proceed?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a href="includes/delete_event.inc.php?eventid='.$event_id.'&status=delete"><button type="button" class="btn btn-theme04">Delete</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ';
+        }
+        ?>
 
 
     <!-- Payments so far table -->
@@ -194,24 +293,36 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
       <div class="col-md-12">
         <div class="content-panel">
           <table class="table table-bordered table-striped table-condensed">
-            <h4><i class="fa fa-angle-right"></i> Payments made so far:</h4>
+            <h4><i class="fa fa-angle-right"></i> Contributions made so far:</h4>
             <hr>
             <thead>
               <tr>
                 <th><i class="fa fa-user"></i> Person</th>
-                <th><i class="fa fa-dollar"></i> Amount</th>
+                <th><i class="fa fa-money"></i> Amount</th>
               </tr>
             </thead>
             <tbody>
-            <?php if(!empty($items3)): ?>
+            <?php
+                $total_amount = 0;
+                $counter_people = 0;
+                if(!empty($items3)):
+                ?>
               <?php foreach($items3 as $item): ?>
                 <tr>
-                  <td><?php echo $item['made_by'];?></td>
-                  <td><?php echo $item['SUM(amount)']." €";?></td>
+                  <td><?php $counter_people = $counter_people + 1;
+                            echo $item['made_by'];?></td>
+                  <td><?php $total_amount = $total_amount + $item['SUM(amount)'];
+                            echo number_format($item['SUM(amount)'], 2, ',', '.')." €";?></td>
                 </tr>
                 <?php endforeach; ?>
               <?php endif; ?>
             </tbody>
+            <thead>
+              <tr>
+                <th bgcolor="#f0f0f5">Total</th>
+                <th bgcolor="#f0f0f5"><?php echo number_format($total_amount, 2, ',', '.').' €'?></th>
+              </tr>
+            </thead>
           </table>
         </div>
         <!-- /content-panel -->
@@ -219,11 +330,6 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
       <!-- /col-md-12 -->
     </div>
     <!-- End payments so far table -->
-
-
-
-
-
 
 
 
@@ -243,6 +349,10 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
         $number_of_people = $number_of_people + 1;
         array_push($payments_array, $item['SUM(amount)']);
         array_push($payers_array, $item['made_by']);
+      }
+      //To avoid divided by zero
+      if ($number_of_people == 0){
+        $number_of_people =1;
       }
       //Splitted event cost:
       $splitted_cost = $total_event_cost / $number_of_people;
@@ -337,13 +447,27 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
       //print_r($owners_array[1]);
 
       //Begining of the table containing the results:
+
+      //To avoid divided by zero
+      if ($counter_people == 0){
+        $counter_people = 1;
+      }
+      $cost_splitted = $total_amount / $counter_people;
+
+
       echo '
         <div class="row mt">
           <div class="col-md-12">
             <div class="content-panel">
               <table class="table table-bordered table-striped table-condensed">
-                <h4><i class="fa fa-angle-right"></i> Splitted Cost:</h4>
-                <h6><i class="fa fa-question-circle"></i> With the expenses made so far in this event, this is the optimal combination to split costs equally among all the participants.</h6>
+                <h4><i class="fa fa-angle-right"></i> Splitted Cost:</h4>';
+
+                if ($cost_splitted != 0) {
+                  echo '<h6><i class="fa fa-money"></i> The splitted cost is <strong>'.number_format($cost_splitted, 2, ',', '.').' €</strong>. That is the amount to contribute equally to this event among all the peers.<br/><br/>
+                  <i class="fa fa-info-circle"></i> With the expenses made so far in this event, this is the optimal combination to split costs equally among all the participants:</h6>';
+                }
+
+                echo '
                 <hr>
                 <tbody>';
       //While the sim of Owners Array is different than 0, that means there's still debt to pay to those people:
@@ -460,10 +584,10 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
                     <tr>
                       <td><?php echo $item['name'];?></td>
                       <td><?php echo $item['description'];?></td>
-                      <td><?php echo $item['amount']." €";?></td>
+                      <td><?php echo number_format($item['amount'], 2, ',', '.')." €";?></td>
                       <td><?php echo $item['date'];?></td>
                       <td><?php echo $item['made_by'];?></td>
-                      <td>
+                      <td align="center">
                         <a href= "<?php echo 'includes/delete.inc.php?status=delete&item='.$item['id'].'&eventid='.$event_id;?>"><button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button></a>
                       </td>
                     </tr>
@@ -477,11 +601,59 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
           <!-- /col-md-12 -->
         </div>
         <!-- /row -->
+
+
+
+
+        <div class="row mt">
+          <div class="col-md-12">
+            <div class="content-panel">
+              <table class="table table-bordered table-striped table-condensed">
+                <h4><i class="fa fa-angle-right"></i> Expenses by category:</h4>
+                <hr>
+
+                <script>
+                window.onload = function() {
+
+                var chart = new CanvasJS.Chart("chartContainer", {
+                	theme: "light2",
+                	animationEnabled: true,
+                	title: {
+                		text: ""
+                	},
+                	data: [{
+                		type: "doughnut",
+                		indexLabel: "{y}",
+                    startAngle: -90,
+                		yValueFormatString: "#,##0.00\" €\"",
+                		showInLegend: true,
+                		legendText: "{label} : {y}",
+                		dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                	}]
+                });
+                chart.render();
+
+                }
+                </script>
+
+                <?php
+                  if(!empty($dataPoints)){
+                    echo '<div id="chartContainer" style="height: 370px; width: 100%;"></div>';
+                  }
+                  ?>
+
+                <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+              </table>
+            </div>
+          </div>
+        </div>
+
       </section>
       <?php
       //Version variables
       require 'config.php';
-      echo '</br><p align="center" class="terms">'.$version_id.'<br/>made with <a class="regular">♥</a> and <strong>< / ></strong> by <a class="regular" href="https://marcoslopezsite.com" target="blank">Marcos López</a></p>';
+      echo '</br><p align="center" class="terms">'.$version_id.'<br/>made with <a class="regular">?</a> and <strong>< / ></strong> by <a class="regular" href="https://marcoslopezsite.com" target="blank">Marcos López</a></p>';
       ?>
     </section>
     <!--main content end-->
@@ -519,7 +691,9 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
 
   <!--script for confirmation message-->
   <?php
-    if(isset($_GET['action'])){
+    $redirected_action = $_GET['action'];
+    if(isset($redirected_action)){
+      if ($redirected_action ==  'itemdeleted'){
         echo '
         <script type="text/javascript">
         $(document).ready(function() {
@@ -540,6 +714,50 @@ $items4 = $itemsQuery4->rowCount() ? $itemsQuery4 : [];
         });
       </script>
         ';
+      } elseif ($redirected_action == 'statusclosed') {
+        echo '
+        <script type="text/javascript">
+        $(document).ready(function() {
+          var unique_id = $.gritter.add({
+            // (string | mandatory) the heading of the notification
+            title: "The event has been closed!",
+            // (string | mandatory) the text inside the notification
+            text: "Check the list of events for more information",
+            // (bool | optional) if you want it to fade out on its own or just sit there
+            sticky: false,
+            // (int | optional) the time you want it to be alive for before fading out
+            time: 4000,
+            // (string | optional) the class name you want to apply to that specific message
+            class_name: "my-sticky-class"
+          });
+
+          return false;
+        });
+      </script>
+        ';
+      } elseif ($redirected_action == 'statusopen') {
+        echo '
+        <script type="text/javascript">
+        $(document).ready(function() {
+          var unique_id = $.gritter.add({
+            // (string | mandatory) the heading of the notification
+            title: "The event has been reopen!",
+            // (string | mandatory) the text inside the notification
+            text: "Check the list of events for more information",
+            // (bool | optional) if you want it to fade out on its own or just sit there
+            sticky: false,
+            // (int | optional) the time you want it to be alive for before fading out
+            time: 4000,
+            // (string | optional) the class name you want to apply to that specific message
+            class_name: "my-sticky-class"
+          });
+
+          return false;
+        });
+      </script>
+        ';
+      }
+
     }
   ?>
 
