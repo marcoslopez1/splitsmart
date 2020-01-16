@@ -30,6 +30,8 @@
 
 - [Feedback](#feedback)
 
+- [Acknowledgments](#acknowledgments)
+
 
 
 ## Use
@@ -72,5 +74,10 @@ Fork available in GitHub. Just download, install and start using it.
 We like meeting new friends!
 
 Send us an email to contact@marcoslopezsite.com
+
+
+## Acknowledgments
+
+Dashio – Bootstrap Admin TemplateHome
 
 
