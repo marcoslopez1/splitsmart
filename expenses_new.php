@@ -179,7 +179,7 @@ $items3 = $itemsQuery3->rowCount() ? $itemsQuery3 : [];
                 <div class="form-group">
                   <label class="col-sm-2 col-sm-2 control-label">Amount:</label>
                   <div class="col-sm-10">
-                    <input class="form-control" id="focusedInput" type="number" name="amount" placeholder="Enter a name for the event" required>
+                    <input class="form-control" id="focusedInput" type="number" step="any" name="amount" placeholder="0.00" required>
                   </div>
                   </br></br>
                   <label class="col-sm-2 col-sm-2 control-label">Name:</label>

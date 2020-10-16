@@ -109,7 +109,7 @@
                 <div class="form-group">
                   <label class="col-sm-2 col-sm-2 control-label">Name:</label>
                   <div class="col-sm-10">
-                    <input class="form-control" id="focusedInput" type="text" name="name" placeholder="Enter a name for the event" required>
+                    <input class="form-control" id="focusedInput" type="text" name="name" placeholder="Enter a name for the category" required>
                   </div>
                   </br></br>
                   <label class="col-sm-2 col-sm-2 control-label">Description:</label>

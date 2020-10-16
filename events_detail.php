@@ -653,7 +653,7 @@ endif;
       <?php
       //Version variables
       require 'config.php';
-      echo '</br><p align="center" class="terms">'.$version_id.'<br/>made with <a class="regular">?</a> and <strong>< / ></strong> by <a class="regular" href="https://marcoslopezsite.com" target="blank">Marcos López</a></p>';
+      echo '</br><p align="center" class="terms">'.$version_id.'<br/>made with <a class="regular">♥</a> and <strong>< / ></strong> by <a class="regular" href="https://marcoslopezsite.com" target="blank">Marcos López</a></p>';
       ?>
     </section>
     <!--main content end-->
